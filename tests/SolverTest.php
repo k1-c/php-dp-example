@@ -11,7 +11,7 @@ class SolverTest extends TestCase
   /**
    * 動的計画法のテスト
    */
-  public function testSolved()
+  public function testSolveMethod()
   {
     $items = [2, 3, 6];
     $packages = [

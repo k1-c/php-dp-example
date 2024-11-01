@@ -48,40 +48,35 @@ class Solver
    */
   public function solve(): array
   {
-    $dp = [];
-    $n = count($this->items);
-    $m = count($this->packages);
-    for ($i = 0; $i <= $n; $i++) {
-      for ($j = 0; $j <= $m; $j++) {
-        $dp[$i][$j] = 0;
-      }
-    }
+    $totalWeight = array_sum($this->items);
 
-    for ($i = 0; $i < $n; $i++) {
-      for ($j = 0; $j < $m; $j++) {
-        if ($this->items[$i] <= $this->packages[$j]["size"]) {
-          $dp[$i + 1][$j + 1] = max($dp[$i][$j + 1], $dp[$i][$j], $dp[$i + 1][$j], $dp[$i][$j] + $this->packages[$j]["price"]);
-        } else {
-          $dp[$i + 1][$j + 1] = $dp[$i][$j + 1];
+    // dp配列とcombinations配列の初期化
+    $dp = array_fill(0, $totalWeight + 1, PHP_INT_MAX);
+    $dp[0] = 0;  // 0kgの荷物を詰めるコストは0円
+
+    // 各重さごとに最適な箱の組み合わせを格納する配列
+    $combinations = array_fill(0, $totalWeight + 1, []);
+    $combinations[0] = []; // 0kgの場合は空の組み合わせ
+
+    // 動的計画法で最小配送料金を計算
+    for ($weight = 1; $weight <= $totalWeight; $weight++) {
+      foreach ($this->packages as $package) {
+        $boxSize = $package["size"];
+        $cost = $package["price"];
+
+        // 現在の重量に対してこの箱を使えるかどうかを確認
+        if ($weight >= $boxSize && $dp[$weight - $boxSize] != PHP_INT_MAX) {
+          $newCost = $dp[$weight - $boxSize] + $cost;
+
+          // 新しいコストが現在のdpより小さい場合、更新
+          if ($newCost < $dp[$weight]) {
+            $dp[$weight] = $newCost;
+            $combinations[$weight] = array_merge($combinations[$weight - $boxSize], [$package]);
+          }
         }
       }
     }
 
-    $res = [];
-    $i = $n;
-    $j = $m;
-    while ($i > 0 && $j > 0) {
-      if ($dp[$i][$j] == $dp[$i - 1][$j]) {
-        $i--;
-      } else if ($dp[$i][$j] == $dp[$i][$j - 1]) {
-        $j--;
-      } else {
-        $res[] = $this->packages[$j - 1];
-        $i--;
-        $j--;
-      }
-    }
-
-    return array_reverse($res);
+    return $combinations[$totalWeight] ?? [];
   }
 }
