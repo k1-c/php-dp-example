@@ -1,0 +1,6 @@
+vendor
+.DS_Store
+.devcontainer
+.vscode
+.vim
+coverage-result
