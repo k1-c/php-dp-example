@@ -12,7 +12,7 @@ You can verify the algorithm works by PHPUnit on the container.
 - Docker
 - Docker Compose
 
-### Installation
+### Running the tests
 
 1. Clone this repository.
 2. Run `docker compose up -d` to build and start the container.
